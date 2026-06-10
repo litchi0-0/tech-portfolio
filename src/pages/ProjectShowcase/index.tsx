@@ -1,74 +1,227 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Tag, Typography, Spin, Empty, Button, Space } from 'antd';
-import { EyeOutlined, GithubOutlined, LinkOutlined } from '@ant-design/icons';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { portfolioApi } from '../../api/portfolio';
 import type { Project } from '../../types';
+import SnapNav from '../../components/SnapNav/SnapNav';
+import InkTag from '../../components/InkTag/InkTag';
+import styles from './ProjectShowcase.module.css';
 
-const { Title, Paragraph } = Typography;
-
-const categoryColors: Record<string, string> = {
-  fullstack: 'purple', frontend: 'blue', backend: 'green', mobile: 'orange',
+const CATEGORY_LABELS: Record<string, string> = {
+  all: '全部',
+  frontend: '前端',
+  fullstack: '全栈',
+  backend: '后端',
 };
+
+const getCategoryLabel = (cat: string): string =>
+  CATEGORY_LABELS[cat] || cat;
 
 const ProjectShowcase: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const containerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    portfolioApi.getProjects().then((res: any) => setProjects(res.data || [])).catch(() => {}).finally(() => setLoading(false));
+    portfolioApi
+      .getProjects()
+      .then((res) => setProjects(res.data?.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}><Spin size="large" /></div>;
+  // Extract unique categories from projects
+  const categories = ['all', ...Array.from(new Set(projects.map((p) => p.category).filter(Boolean)))];
 
-  const categories = ['all', ...Array.from(new Set(projects.map(p => p.category).filter(Boolean)))];
-  const filtered = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+  // Filtered projects
+  const filtered = filter === 'all' ? projects : projects.filter((p) => p.category === filter);
+
+  // Reset active index when filter changes
+  useEffect(() => {
+    setActiveIndex(0);
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [filter]);
+
+  // Observe which slide is visible
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || filtered.length === 0) return;
+
+    const sections = container.querySelectorAll('section');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = Array.from(sections).indexOf(entry.target);
+            if (idx >= 0) setActiveIndex(idx);
+          }
+        });
+      },
+      { root: container, threshold: 0.5 }
+    );
+
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, [filtered.length]);
+
+  // Scroll to a specific slide
+  const scrollToSlide = useCallback(
+    (index: number) => {
+      const container = containerRef.current;
+      if (!container) return;
+      const sections = container.querySelectorAll('section');
+      sections[index]?.scrollIntoView({ behavior: 'smooth' });
+    },
+    []
+  );
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = Math.min(activeIndex + 1, filtered.length - 1);
+        if (next !== activeIndex) scrollToSlide(next);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = Math.max(activeIndex - 1, 0);
+        if (prev !== activeIndex) scrollToSlide(prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeIndex, filtered.length, scrollToSlide]);
+
+  const handlePrev = () => {
+    if (activeIndex > 0) scrollToSlide(activeIndex - 1);
+  };
+
+  const handleNext = () => {
+    if (activeIndex < filtered.length - 1) scrollToSlide(activeIndex + 1);
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.loadingWrap}>
+          <div className={styles.loadingSpinner} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px' }}>
-      <Title level={2}>项目展示</Title>
-
-      <Space style={{ marginBottom: 24 }} wrap>
-        {categories.map(cat => (
-          <Button key={cat} type={filter === cat ? 'primary' : 'default'} onClick={() => setFilter(cat)}>
-            {cat === 'all' ? '全部' : cat}
-          </Button>
-        ))}
-      </Space>
-
-      {filtered.length === 0 ? <Empty description="暂无项目" /> : (
-        <Row gutter={[24, 24]}>
-          {filtered.map(p => (
-            <Col xs={24} sm={12} md={8} key={p.id}>
-              <Card
-                hoverable
-                cover={
-                  p.coverImage ? (
-                    <div style={{ height: 200, overflow: 'hidden', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <img alt={p.title} src={p.coverImage} style={{ width: '100%', height: 200, objectFit: 'cover' }} />
-                    </div>
-                  ) : (
-                    <div style={{ height: 200, background: 'linear-gradient(135deg, #667eea, #764ba2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <EyeOutlined style={{ fontSize: 48, color: '#fff' }} />
-                    </div>
-                  )
-                }
-                actions={[
-                  p.demoUrl ? <LinkOutlined key="demo" onClick={() => window.open(p.demoUrl)} /> : null,
-                  p.repoUrl ? <GithubOutlined key="repo" onClick={() => window.open(p.repoUrl)} /> : null,
-                ].filter(Boolean)}
-              >
-                <Card.Meta
-                  title={<Space>{p.title} {p.category && <Tag color={categoryColors[p.category] || 'default'}>{p.category}</Tag>}</Space>}
-                  description={<Paragraph ellipsis={{ rows: 3 }}>{p.description}</Paragraph>}
-                />
-                <div style={{ marginTop: 12 }}>
-                  {p.techStack?.split(',').map(t => <Tag key={t}>{t.trim()}</Tag>)}
-                </div>
-              </Card>
-            </Col>
+    <div className={styles.root}>
+      {/* Header: title + filter pills */}
+      <div className={styles.header}>
+        <h1 className={styles.title}>作品集</h1>
+        <div className={styles.filters}>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`${styles.filterPill} ${filter === cat ? styles.filterActive : ''}`}
+              onClick={() => setFilter(cat)}
+            >
+              {getCategoryLabel(cat)}
+            </button>
           ))}
-        </Row>
+        </div>
+      </div>
+
+      {/* Main snap-scroll gallery */}
+      {filtered.length === 0 ? (
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon}>&#9744;</span>
+          <span>暂无项目</span>
+        </div>
+      ) : (
+        <>
+          <div ref={containerRef} className={styles.snapContainer}>
+            {filtered.map((project) => (
+              <section key={project.id} className={styles.slide}>
+                {/* Left: image area with dark gradient overlay */}
+                <div className={styles.slideImage}>
+                  {project.coverImage ? (
+                    <>
+                      <img src={project.coverImage} alt={project.title} />
+                      <div className={styles.imageOverlay} />
+                    </>
+                  ) : (
+                    <div className={styles.imagePlaceholder}>
+                      <span className={styles.placeholderIcon}>&#9734;</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: meta info panel */}
+                <div className={styles.slideMeta}>
+                  <h2 className={styles.projectTitle}>{project.title}</h2>
+                  <p className={styles.projectDesc}>{project.description}</p>
+                  <div className={styles.techTags}>
+                    {project.techStack
+                      ?.split(',')
+                      .filter(Boolean)
+                      .map((tech) => (
+                        <InkTag key={tech.trim()} variant="dark">
+                          {tech.trim()}
+                        </InkTag>
+                      ))}
+                  </div>
+                  <div className={styles.links}>
+                    {project.demoUrl && (
+                      <a
+                        className={styles.linkBtn}
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Demo
+                      </a>
+                    )}
+                    {project.repoUrl && (
+                      <a
+                        className={styles.linkBtn}
+                        href={project.repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Code
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </section>
+            ))}
+          </div>
+
+          {/* SnapNav dot navigation on the right */}
+          <SnapNav containerRef={containerRef} count={filtered.length} />
+
+          {/* Bottom prev/next navigation */}
+          <div className={styles.bottomNav}>
+            <button
+              className={styles.navBtn}
+              onClick={handlePrev}
+              disabled={activeIndex === 0}
+            >
+              &larr; PREV
+            </button>
+            <div className={styles.navDivider} />
+            <span className={styles.navCounter}>
+              {activeIndex + 1}/{filtered.length}
+            </span>
+            <div className={styles.navDivider} />
+            <button
+              className={styles.navBtn}
+              onClick={handleNext}
+              disabled={activeIndex === filtered.length - 1}
+            >
+              NEXT &rarr;
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

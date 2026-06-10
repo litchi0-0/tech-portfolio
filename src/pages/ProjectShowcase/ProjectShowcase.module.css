@@ -1,0 +1,266 @@
+/* ===== Full-screen project gallery ===== */
+
+.root {
+  background-color: var(--ink-black);
+  color: var(--paper);
+  min-height: 100vh;
+  padding-top: 48px;
+}
+
+/* --- Header area --- */
+.header {
+  padding: 40px 60px 0;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--paper);
+  letter-spacing: 2px;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterPill {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 6px 18px;
+  border: 1px solid var(--border-dark);
+  background: transparent;
+  color: var(--ink-faint);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filterPill:hover {
+  color: var(--paper);
+  border-color: var(--ink-light);
+}
+
+.filterActive {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* --- Snap scroll container --- */
+.snapContainer {
+  height: calc(100vh - 48px);
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.snapContainer::-webkit-scrollbar {
+  width: 0;
+}
+
+/* --- Each project slide --- */
+.slide {
+  scroll-snap-align: start;
+  height: calc(100vh - 48px);
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Image area: left 2/3 */
+.slideImage {
+  flex: 0 0 66.666%;
+  position: relative;
+  overflow: hidden;
+  background: var(--ink-deep);
+}
+
+.slideImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    transparent 50%,
+    var(--ink-black) 100%
+  );
+  pointer-events: none;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--ink-deep), var(--ink-heavy));
+}
+
+.placeholderIcon {
+  font-size: 64px;
+  color: var(--ink-light);
+}
+
+/* Meta panel: right 1/3 */
+.slideMeta {
+  flex: 0 0 33.333%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 48px;
+  position: relative;
+}
+
+.projectTitle {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--paper);
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+.projectDesc {
+  font-size: 13px;
+  color: var(--ink-faint);
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+
+.techTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.links {
+  display: flex;
+  gap: 16px;
+}
+
+.linkBtn {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 8px 20px;
+  border: 1px solid var(--border-dark);
+  background: transparent;
+  color: var(--ink-faint);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.linkBtn:hover {
+  color: var(--paper);
+  border-color: var(--ink-light);
+}
+
+/* --- Bottom navigation --- */
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  z-index: 90;
+  border-top: 1px solid var(--border-dark);
+}
+
+.navBtn {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 6px 16px;
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  user-select: none;
+}
+
+.navBtn:hover {
+  color: var(--paper);
+}
+
+.navBtn:disabled {
+  color: var(--ink-heavy);
+  cursor: not-allowed;
+}
+
+.navCounter {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--ink-light);
+  letter-spacing: 1px;
+  user-select: none;
+}
+
+.navDivider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-dark);
+}
+
+/* --- Loading / Empty states --- */
+.loadingWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 48px);
+}
+
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--ink-heavy);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 48px);
+  color: var(--ink-faint);
+  font-size: 14px;
+  gap: 16px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: var(--ink-heavy);
+}
