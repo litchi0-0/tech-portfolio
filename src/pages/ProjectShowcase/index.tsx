@@ -20,7 +20,7 @@ const ProjectShowcase: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [activeIndex, setActiveIndex] = useState(0);
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     portfolioApi
@@ -54,7 +54,7 @@ const ProjectShowcase: React.FC = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const idx = Array.from(sections).indexOf(entry.target);
+            const idx = Array.from(sections as NodeListOf<HTMLElement>).indexOf(entry.target as HTMLElement);
             if (idx >= 0) setActiveIndex(idx);
           }
         });

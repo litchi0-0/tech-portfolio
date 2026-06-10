@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Modal, Form, Input, Select, InputNumber, Upload, message, Popconfirm, Tag, Image } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Modal, Form, Input, Select, InputNumber, message, Popconfirm, Tag, Image } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi } from '../../api/admin';
 import type { Project } from '../../types';
 

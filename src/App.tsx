@@ -40,7 +40,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 const App: React.FC = () => {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { logout, user } = useAuth();
 
   return (
     <ConfigProvider locale={zhCN} theme={{ ...antdInkTheme, algorithm: antdTheme.defaultAlgorithm }}>

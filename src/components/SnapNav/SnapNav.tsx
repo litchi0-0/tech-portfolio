@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './SnapNav.module.css';
 
 interface SnapNavProps {
-  containerRef: React.RefObject<HTMLElement | null>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
   count: number;
 }
 
@@ -18,7 +18,7 @@ const SnapNav: React.FC<SnapNavProps> = ({ containerRef, count }) => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const idx = Array.from(sections).indexOf(entry.target);
+            const idx = Array.from(sections as NodeListOf<HTMLElement>).indexOf(entry.target as HTMLElement);
             if (idx >= 0) setActiveIndex(idx);
           }
         });
