@@ -1,0 +1,95 @@
+.page {
+  background: #0A0A0A;
+  min-height: 100vh;
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.label {
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 300;
+  color: #F5F3EF;
+  letter-spacing: 4px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.chartCard {
+  border: 1px solid #1A1A1A;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chartTitle {
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.chartWrap {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Code quality score - no gauge ring */
+.scoreContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.scoreNumber {
+  font-family: var(--font-serif);
+  font-size: 96px;
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.scoreDivider {
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px 0;
+}
+
+.scoreTotal {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--ink-faint);
+  letter-spacing: 2px;
+}
+
+.scoreLabel {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 1px;
+}

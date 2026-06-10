@@ -1,83 +1,99 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Typography, Spin } from 'antd';
+import React from 'react';
 import ReactECharts from 'echarts-for-react';
-import { portfolioApi } from '../../api/portfolio';
-import type { Showcase } from '../../types';
-
-const { Title, Paragraph } = Typography;
+import styles from './ThreeJS.module.css';
 
 const ThreeJS: React.FC = () => {
-  const [showcases, setShowcases] = useState<Showcase[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    portfolioApi.getShowcases('threejs').then((res: any) => setShowcases(res.data || [])).catch(() => {}).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}><Spin size="large" /></div>;
-
   const scatter3DOption = {
-    backgroundColor: '#000',
-    title: { text: '3D 技能散点图', textStyle: { color: '#fff' }, left: 'center' },
+    backgroundColor: 'transparent',
     tooltip: {},
-    xAxis3D: { type: 'value', name: '熟练度' },
-    yAxis3D: { type: 'value', name: '使用频率' },
-    zAxis3D: { type: 'value', name: '项目数' },
-    grid3D: { viewControl: { autoRotate: true } },
+    xAxis3D: {
+      type: 'value',
+      name: '熟练度',
+      nameTextStyle: { color: '#666666', fontSize: 11 },
+      axisLine: { lineStyle: { color: '#1A1A1A' } },
+      axisLabel: { color: '#666666', fontSize: 10 },
+      splitLine: { lineStyle: { color: '#1A1A1A' } },
+    },
+    yAxis3D: {
+      type: 'value',
+      name: '使用频率',
+      nameTextStyle: { color: '#666666', fontSize: 11 },
+      axisLine: { lineStyle: { color: '#1A1A1A' } },
+      axisLabel: { color: '#666666', fontSize: 10 },
+      splitLine: { lineStyle: { color: '#1A1A1A' } },
+    },
+    zAxis3D: {
+      type: 'value',
+      name: '项目数',
+      nameTextStyle: { color: '#666666', fontSize: 11 },
+      axisLine: { lineStyle: { color: '#1A1A1A' } },
+      axisLabel: { color: '#666666', fontSize: 10 },
+      splitLine: { lineStyle: { color: '#1A1A1A' } },
+    },
+    grid3D: {
+      viewControl: { autoRotate: true, autoRotateSpeed: 4 },
+      light: {
+        main: { intensity: 1.2, shadow: false },
+        ambient: { intensity: 0.3 },
+      },
+      axisLine: { lineStyle: { color: '#1A1A1A' } },
+      axisPointer: { lineStyle: { color: '#333333' } },
+      splitLine: { lineStyle: { color: '#1A1A1A' } },
+      splitArea: { show: false },
+      environment: 'transparent',
+    },
     series: [{
       type: 'scatter3D',
       data: [
-        [90, 80, 12, 'React'], [85, 70, 10, 'TypeScript'], [80, 60, 8, 'Spring Boot'],
-        [75, 50, 6, 'Node.js'], [70, 40, 5, 'Python'], [65, 55, 7, 'Vue'],
-        [60, 30, 4, 'Go'], [55, 25, 3, 'Docker'], [50, 45, 6, 'MySQL'],
+        { value: [90, 80, 12], name: 'React' },
+        { value: [85, 70, 10], name: 'TypeScript' },
+        { value: [80, 60, 8], name: 'Spring Boot' },
+        { value: [75, 50, 6], name: 'Node.js' },
+        { value: [70, 40, 5], name: 'Python' },
+        { value: [65, 55, 7], name: 'Vue' },
+        { value: [60, 30, 4], name: 'Go' },
+        { value: [55, 25, 3], name: 'Docker' },
+        { value: [50, 45, 6], name: 'MySQL' },
       ],
-      symbolSize: (val: number[]) => val[2] * 3,
-      itemStyle: { color: (params: any) => {
-        const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'];
-        return colors[params.dataIndex % colors.length];
-      }},
+      symbolSize: (val: number[]) => val[2] * 4,
+      itemStyle: {
+        color: '#666666',
+        opacity: 0.9,
+      },
+      label: {
+        show: true,
+        formatter: (params: any) => params.data.name,
+        textStyle: {
+          color: '#999999',
+          fontSize: 10,
+        },
+      },
+      emphasis: {
+        itemStyle: {
+          color: '#A85A4A',
+        },
+      },
     }],
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px' }}>
-      <Title level={2}>{showcases.length > 0 ? showcases[0].title : 'Three.js 3D 展示'}</Title>
-      <Paragraph type="secondary">
-        {showcases.length > 0 ? showcases[0].description : '使用 ECharts GL 实现的 3D 数据可视化效果展示'}
-      </Paragraph>
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div className={styles.label}>3D SHOWCASE</div>
+        <h1 className={styles.title}>三维展示</h1>
+      </div>
 
-      <Row gutter={[24, 24]}>
-        <Col span={24}>
-          <Card>
-            <ReactECharts option={scatter3DOption} style={{ height: 500 }} />
-          </Card>
-        </Col>
-      </Row>
+      <div className={styles.chartContainer}>
+        <ReactECharts
+          option={scatter3DOption}
+          style={{ height: '100%' }}
+          theme="ink"
+        />
+      </div>
 
-      {/* CSS 3D Transform demo */}
-      <Card style={{ marginTop: 24 }}>
-        <Title level={4}>CSS 3D 变换展示</Title>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
-          <div style={{
-            perspective: '800px',
-          }}>
-            <div style={{
-              width: 200, height: 200, background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 20, fontWeight: 'bold',
-              transform: 'rotateX(15deg) rotateY(-15deg)',
-              boxShadow: '10px 10px 30px rgba(0,0,0,0.3)',
-              transition: 'transform 0.5s ease',
-              cursor: 'pointer',
-            }}
-            onMouseEnter={e => { (e.target as HTMLElement).style.transform = 'rotateX(0deg) rotateY(0deg)'; }}
-            onMouseLeave={e => { (e.target as HTMLElement).style.transform = 'rotateX(15deg) rotateY(-15deg)'; }}
-            >
-              3D Card
-            </div>
-          </div>
-        </div>
-      </Card>
+      <div className={styles.annotation}>
+        技能三维分布 · 自动旋转
+      </div>
     </div>
   );
 };

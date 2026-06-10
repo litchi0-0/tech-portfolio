@@ -1,98 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Typography, Spin } from 'antd';
+import React from 'react';
 import ReactECharts from 'echarts-for-react';
-import { portfolioApi } from '../../api/portfolio';
-import type { Showcase } from '../../types';
-
-const { Title } = Typography;
+import styles from './BigScreen.module.css';
 
 const BigScreen: React.FC = () => {
-  const [showcases, setShowcases] = useState<Showcase[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Bar chart: tech stack usage frequency - monochrome grayscale, accent on highest bar
+  const barData = [
+    { name: 'React', value: 120 },
+    { name: 'Vue', value: 80 },
+    { name: 'Spring Boot', value: 95 },
+    { name: 'Node.js', value: 60 },
+    { name: 'Python', value: 45 },
+    { name: 'Go', value: 35 },
+  ];
+  const maxBarValue = Math.max(...barData.map(d => d.value));
 
-  useEffect(() => {
-    portfolioApi.getShowcases('bigscreen').then((res: any) => setShowcases(res.data || [])).catch(() => {}).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}><Spin size="large" /></div>;
-
-  // Hardcoded demo charts for the big screen showcase
   const barOption = {
-    backgroundColor: 'transparent',
-    title: { text: '技术栈使用频率', textStyle: { color: '#fff' } },
-    tooltip: {},
-    xAxis: { type: 'category', data: ['React', 'Vue', 'Spring Boot', 'Node.js', 'Python', 'Go'], axisLabel: { color: '#aaa' } },
-    yAxis: { type: 'value', axisLabel: { color: '#aaa' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
-    series: [{ type: 'bar', data: [120, 80, 95, 60, 45, 35], itemStyle: { color: '#5470c6', borderRadius: [4, 4, 0, 0] } }],
-  };
-
-  const pieOption = {
-    backgroundColor: 'transparent',
-    title: { text: '项目类型分布', textStyle: { color: '#fff' } },
-    tooltip: { trigger: 'item' },
+    tooltip: { trigger: 'axis' },
+    grid: { top: 10, right: 16, bottom: 24, left: 48 },
+    xAxis: {
+      type: 'category',
+      data: barData.map(d => d.name),
+      axisLine: { lineStyle: { color: '#1A1A1A' } },
+      axisLabel: { color: '#666666', fontSize: 11 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#666666', fontSize: 11 },
+      splitLine: { lineStyle: { color: '#1A1A1A', type: 'dashed' } },
+    },
     series: [{
-      type: 'pie', radius: ['40%', '70%'],
-      data: [
-        { value: 8, name: '全栈项目' },
-        { value: 5, name: '前端项目' },
-        { value: 4, name: '后端项目' },
-        { value: 3, name: '移动端项目' },
-      ],
-      label: { color: '#aaa' },
+      type: 'bar',
+      data: barData.map(d => ({
+        value: d.value,
+        itemStyle: {
+          color: d.value === maxBarValue ? '#A85A4A' : '#333333',
+          borderRadius: [2, 2, 0, 0],
+        },
+      })),
+      barWidth: '40%',
     }],
   };
 
+  // Line chart: annual commit trend
   const lineOption = {
-    backgroundColor: 'transparent',
-    title: { text: '年度提交趋势', textStyle: { color: '#fff' } },
     tooltip: { trigger: 'axis' },
-    xAxis: { type: 'category', data: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'], axisLabel: { color: '#aaa' } },
-    yAxis: { type: 'value', axisLabel: { color: '#aaa' }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } } },
-    series: [
-      { type: 'line', data: [150, 180, 220, 280, 350, 310, 290, 320, 380, 420, 390, 450], smooth: true, areaStyle: { opacity: 0.3 }, itemStyle: { color: '#91cc75' } },
-    ],
+    grid: { top: 10, right: 16, bottom: 24, left: 48 },
+    xAxis: {
+      type: 'category',
+      data: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+      axisLine: { lineStyle: { color: '#1A1A1A' } },
+      axisLabel: { color: '#666666', fontSize: 11 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#666666', fontSize: 11 },
+      splitLine: { lineStyle: { color: '#1A1A1A', type: 'dashed' } },
+    },
+    series: [{
+      type: 'line',
+      data: [150, 180, 220, 280, 350, 310, 290, 320, 380, 420, 390, 450],
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 4,
+      lineStyle: { width: 1, color: '#666666' },
+      itemStyle: { color: '#999999', borderWidth: 1 },
+      areaStyle: { color: 'rgba(51,51,51,0.15)' },
+    }],
   };
 
-  const gaugeOption = {
-    backgroundColor: 'transparent',
-    title: { text: '代码质量评分', textStyle: { color: '#fff' } },
+  // Pie/donut chart: project type distribution - grayscale
+  const pieOption = {
+    tooltip: { trigger: 'item' },
     series: [{
-      type: 'gauge',
-      detail: { valueAnimation: true, formatter: '{value}%', color: '#fff' },
-      data: [{ value: 92, name: '质量分' }],
-      axisLine: { lineStyle: { width: 10 } },
-      title: { offsetCenter: [0, '70%'], color: '#aaa' },
+      type: 'pie',
+      radius: ['40%', '70%'],
+      center: ['50%', '55%'],
+      data: [
+        { value: 8, name: '全栈项目', itemStyle: { color: '#333333' } },
+        { value: 5, name: '前端项目', itemStyle: { color: '#666666' } },
+        { value: 4, name: '后端项目', itemStyle: { color: '#999999' } },
+        { value: 3, name: '移动端项目', itemStyle: { color: '#1A1A1A', borderColor: '#333333', borderWidth: 1 } },
+      ],
+      label: { color: '#666666', fontSize: 11 },
+      itemStyle: { borderColor: '#0A0A0A', borderWidth: 2 },
     }],
   };
 
   return (
-    <div style={{ background: '#0a0e27', minHeight: 'calc(100vh - 64px - 69px)', padding: '20px' }}>
-      <Title level={2} style={{ color: '#fff', textAlign: 'center', marginBottom: 24 }}>
-        {showcases.length > 0 ? showcases[0].title : '数据可视化大屏'}
-      </Title>
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div className={styles.label}>DATA VISUALIZATION</div>
+        <h1 className={styles.title}>数据大屏</h1>
+      </div>
 
-      <Row gutter={[16, 16]}>
-        <Col xs={24} md={12}>
-          <Card style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <ReactECharts option={barOption} style={{ height: 300 }} />
-          </Card>
-        </Col>
-        <Col xs={24} md={12}>
-          <Card style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <ReactECharts option={pieOption} style={{ height: 300 }} />
-          </Card>
-        </Col>
-        <Col xs={24} md={12}>
-          <Card style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <ReactECharts option={lineOption} style={{ height: 300 }} />
-          </Card>
-        </Col>
-        <Col xs={24} md={12}>
-          <Card style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <ReactECharts option={gaugeOption} style={{ height: 300 }} />
-          </Card>
-        </Col>
-      </Row>
+      <div className={styles.grid}>
+        {/* Bar chart */}
+        <div className={styles.chartCard}>
+          <div className={styles.chartTitle}>技术栈使用频率</div>
+          <div className={styles.chartWrap}>
+            <ReactECharts option={barOption} style={{ height: '100%' }} theme="ink" />
+          </div>
+        </div>
+
+        {/* Line chart */}
+        <div className={styles.chartCard}>
+          <div className={styles.chartTitle}>年度提交趋势</div>
+          <div className={styles.chartWrap}>
+            <ReactECharts option={lineOption} style={{ height: '100%' }} theme="ink" />
+          </div>
+        </div>
+
+        {/* Pie/donut chart */}
+        <div className={styles.chartCard}>
+          <div className={styles.chartTitle}>项目类型分布</div>
+          <div className={styles.chartWrap}>
+            <ReactECharts option={pieOption} style={{ height: '100%' }} theme="ink" />
+          </div>
+        </div>
+
+        {/* Code quality score - no gauge ring */}
+        <div className={styles.chartCard}>
+          <div className={styles.chartTitle}>代码质量评分</div>
+          <div className={styles.scoreContainer}>
+            <div className={styles.scoreNumber}>92</div>
+            <div className={styles.scoreDivider} />
+            <div className={styles.scoreTotal}>/ 100</div>
+            <div className={styles.scoreLabel}>QUALITY SCORE</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
