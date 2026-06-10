@@ -1,50 +1,74 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography, message } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-
-const { Title, Text } = Typography;
+import InkInput from '../../components/InkInput/InkInput';
+import InkButton from '../../components/InkButton/InkButton';
+import styles from './Login.module.css';
 
 const Login: React.FC = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const onFinish = async (values: { username: string; password: string }) => {
+  const handleLogin = async () => {
+    if (loading) return;
+    setError('');
+
+    if (!username.trim() || !password.trim()) {
+      setError('请输入用户名和密码');
+      return;
+    }
+
     setLoading(true);
     try {
-      await login(values.username, values.password);
-      message.success('登录成功');
+      await login(username, password);
       navigate('/admin');
     } catch (err: any) {
-      message.error(err.message || '登录失败');
+      setError(err.message || '登录失败');
     } finally {
       setLoading(false);
     }
   };
 
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleLogin();
+  };
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-      <Card style={{ width: 400, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}>
-        <div style={{ width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <Title level={3} style={{ margin: 0 }}>管理后台登录</Title>
-          <Text type="secondary">Portfolio 管理系统</Text>
+    <div className={styles.page}>
+      <form className={styles.form} onSubmit={onSubmit}>
+        <div className={styles.logo}>墨</div>
+        <div className={styles.divider} />
+        <div className={styles.label}>MANAGEMENT</div>
+
+        <div className={styles.fields}>
+          <InkInput
+            placeholder="用户名"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <InkInput
+            type="password"
+            placeholder="密码"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
-        <Form onFinish={onFinish} style={{ marginTop: 32 }} size="large">
-          <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
-          </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              登录
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+
+        <div className={styles.buttonWrap}>
+          <InkButton variant="fill" onClick={handleLogin}>
+            {loading ? '· · ·' : '登 录'}
+          </InkButton>
+        </div>
+
+        {error && <div className={styles.error}>{error}</div>}
+      </form>
+
+      <div className={styles.splash} />
     </div>
   );
 };
