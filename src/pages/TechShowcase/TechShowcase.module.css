@@ -1,0 +1,83 @@
+.container {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  padding-top: 48px;
+}
+
+.screen {
+  height: 100vh;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 60px;
+  position: relative;
+}
+
+.screenLight {
+  background-color: var(--void);
+}
+
+.label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--ink-black);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.radarWrap {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+
+.categories {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.catBtn {
+  font-size: 10px;
+  padding: 4px 14px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--ink-heavy);
+  cursor: pointer;
+  border-radius: var(--radius);
+  letter-spacing: 1px;
+  transition: all var(--transition-fast);
+  font-family: var(--font-sans);
+}
+
+.catBtn:hover, .catBtnActive {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.catLabel {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  margin-bottom: 16px;
+}
+
+.catTitle {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 300;
+  margin-bottom: 24px;
+}

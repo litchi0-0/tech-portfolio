@@ -1,23 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Tag, Typography, Spin, Empty, Progress } from 'antd';
-import { CodeOutlined } from '@ant-design/icons';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
+import SnapNav from '../../components/SnapNav/SnapNav';
+import InkProgress from '../../components/InkProgress/InkProgress';
 import { portfolioApi } from '../../api/portfolio';
 import type { TechStack } from '../../types';
+import styles from './TechShowcase.module.css';
 
-const { Title } = Typography;
+const categoryLabels: Record<string, string> = {
+  frontend: '前端 FRONTEND', backend: '后端 BACKEND', database: '数据库 DATABASE',
+  devops: 'DevOps', other: '其他 OTHER',
+};
 
 const TechShowcase: React.FC = () => {
   const [techStacks, setTechStacks] = useState<TechStack[]>([]);
-  const [loading, setLoading] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    portfolioApi.getTechStacks().then((res: any) => setTechStacks(res.data || [])).catch(() => {}).finally(() => setLoading(false));
+    portfolioApi.getTechStacks().then((res: any) => setTechStacks(res.data || [])).catch(() => {});
   }, []);
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}><Spin size="large" /></div>;
-
-  // Group by category
   const grouped = techStacks.reduce((acc, ts) => {
     const cat = ts.category || 'other';
     if (!acc[cat]) acc[cat] = [];
@@ -25,53 +26,69 @@ const TechShowcase: React.FC = () => {
     return acc;
   }, {} as Record<string, TechStack[]>);
 
-  const categoryLabels: Record<string, string> = {
-    frontend: '前端', backend: '后端', database: '数据库', devops: 'DevOps', other: '其他'
+  const categories = Object.keys(grouped);
+  const screenCount = 1 + categories.length;
+
+  const scrollToCategory = (cat: string) => {
+    const idx = categories.indexOf(cat);
+    if (idx < 0) return;
+    const container = containerRef.current;
+    if (!container) return;
+    const sections = container.querySelectorAll('section');
+    sections[idx + 1]?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Radar chart option
   const radarOption = {
-    tooltip: {},
     radar: {
-      indicator: techStacks.slice(0, 12).map(ts => ({ name: ts.name, max: 100 })),
+      indicator: techStacks.slice(0, 12).map((ts) => ({ name: ts.name, max: 100 })),
+      splitLine: { lineStyle: { color: '#E5E5E5' } },
+      splitArea: { show: false },
+      axisLine: { lineStyle: { color: '#E5E5E5' } },
+      name: { textStyle: { color: '#666', fontSize: 11 } },
     },
     series: [{
       type: 'radar',
-      data: [{ value: techStacks.slice(0, 12).map(ts => ts.proficiency), name: '熟练度' }],
+      data: [{
+        value: techStacks.slice(0, 12).map((ts) => ts.proficiency),
+        areaStyle: { color: 'rgba(10,10,10,0.06)' },
+        lineStyle: { color: '#0A0A0A', width: 1 },
+        itemStyle: { color: '#A85A4A' },
+      }],
     }],
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px' }}>
-      <Title level={2}>技术栈展示</Title>
+    <div className={styles.container} ref={containerRef}>
+      <SnapNav containerRef={containerRef} count={screenCount} />
 
-      {techStacks.length > 0 && (
-        <Card style={{ marginBottom: 32 }}>
-          <ReactECharts option={radarOption} style={{ height: 400 }} />
-        </Card>
-      )}
-
-      {Object.entries(grouped).map(([category, items]) => (
-        <div key={category} style={{ marginBottom: 32 }}>
-          <Title level={3}>{categoryLabels[category] || category}</Title>
-          <Row gutter={[24, 24]}>
-            {items.map(ts => (
-              <Col xs={24} sm={12} md={8} lg={6} key={ts.id}>
-                <Card hoverable>
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-                    <CodeOutlined style={{ fontSize: 24, marginRight: 12, color: '#1890ff' }} />
-                    <Title level={5} style={{ margin: 0 }}>{ts.name}</Title>
-                  </div>
-                  <Progress percent={ts.proficiency} strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />
-                  {ts.description && <p style={{ color: '#666', marginTop: 8, fontSize: 13 }}>{ts.description}</p>}
-                </Card>
-              </Col>
-            ))}
-          </Row>
+      {/* Screen 1: Radar overview */}
+      <section className={`${styles.screen} ${styles.screenLight}`}>
+        <div className={styles.label}>TECH SHOWCASE</div>
+        <div className={styles.title}>技术图谱</div>
+        <div className={styles.radarWrap}>
+          <ReactECharts option={radarOption} theme="ink" style={{ height: 300 }} />
         </div>
-      ))}
+        <div className={styles.categories}>
+          {categories.map((cat) => (
+            <button key={cat} className={styles.catBtn} onClick={() => scrollToCategory(cat)}>
+              {categoryLabels[cat] || cat}
+            </button>
+          ))}
+        </div>
+      </section>
 
-      {techStacks.length === 0 && <Empty description="暂无技术栈数据" />}
+      {/* Category screens */}
+      {categories.map((cat) => (
+        <section key={cat} className={`${styles.screen} ${styles.screenLight}`}>
+          <div className={styles.catLabel}>{categoryLabels[cat] || cat}</div>
+          <div className={styles.catTitle}>{(categoryLabels[cat] || cat).split(' ')[0]}</div>
+          <div style={{ width: '100%', maxWidth: 600 }}>
+            {grouped[cat].map((ts) => (
+              <InkProgress key={ts.id} label={ts.name} value={ts.proficiency} />
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 };
