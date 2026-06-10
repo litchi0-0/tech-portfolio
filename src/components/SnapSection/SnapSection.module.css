@@ -1,0 +1,21 @@
+.section {
+  height: var(--snap-height);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--content-padding);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark {
+  background-color: var(--ink-black);
+  color: var(--void);
+}
+
+.light {
+  background-color: var(--void);
+  color: var(--ink-black);
+}

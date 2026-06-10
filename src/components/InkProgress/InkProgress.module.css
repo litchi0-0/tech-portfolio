@@ -1,0 +1,25 @@
+.row {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-heavy);
+  margin-bottom: 4px;
+}
+
+.value {
+  color: var(--ink-faint);
+}
+
+.track {
+  height: 2px;
+  background-color: var(--border-light);
+}
+
+.fill {
+  height: 100%;
+  transition: width var(--transition-normal);
+}
