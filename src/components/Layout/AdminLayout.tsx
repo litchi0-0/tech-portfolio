@@ -1,22 +1,12 @@
-import React from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
+import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import {
-  DashboardOutlined,
-  ProjectOutlined,
-  CodeOutlined,
-  AppstoreOutlined,
-  LogoutOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import styles from './AdminLayout.module.css';
 
-const { Sider, Header, Content } = Layout;
-
-const siderItems = [
-  { key: '/admin', icon: <DashboardOutlined />, label: '仪表盘' },
-  { key: '/admin/projects', icon: <ProjectOutlined />, label: '项目管理' },
-  { key: '/admin/tech-stacks', icon: <CodeOutlined />, label: '技术栈管理' },
-  { key: '/admin/showcases', icon: <AppstoreOutlined />, label: '展示项管理' },
+const navItems = [
+  { path: '/admin', label: '概览' },
+  { path: '/admin/projects', label: '项目' },
+  { path: '/admin/tech-stacks', label: '技术栈' },
+  { path: '/admin/showcases', label: '展示' },
 ];
 
 interface AdminLayoutProps {
@@ -27,40 +17,54 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ onLogout, username }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const dropdownItems = [
-    { key: 'home', label: '返回前台', onClick: () => navigate('/') },
-    { key: 'logout', label: '退出登录', onClick: onLogout, icon: <LogoutOutlined /> },
-  ];
+  const isActive = (path: string) => {
+    if (path === '/admin') return location.pathname === '/admin';
+    return location.pathname.startsWith(path);
+  };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider theme="dark" width={200}>
-        <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18, fontWeight: 'bold' }}>
-          管理后台
-        </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={siderItems}
-          onClick={({ key }) => navigate(key)}
-        />
-      </Sider>
-      <Layout>
-        <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-          <Dropdown menu={{ items: dropdownItems }} placement="bottomRight">
-            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Avatar icon={<UserOutlined />} />
-              <span>{username || '管理员'}</span>
+    <div className={styles.layout}>
+      <div className={styles.sidebar}>
+        <div className={styles.sidebarLogo}>墨</div>
+        <div className={styles.sidebarDivider} />
+        <div className={styles.sidebarNav}>
+          {navItems.map((item) => (
+            <div
+              key={item.path}
+              className={`${styles.sidebarItem} ${isActive(item.path) ? styles.sidebarItemActive : ''}`}
+              onClick={() => navigate(item.path)}
+            >
+              {item.label}
             </div>
-          </Dropdown>
-        </Header>
-        <Content style={{ margin: 16, padding: 24, background: '#fff', borderRadius: 8, minHeight: 280 }}>
+          ))}
+        </div>
+        <div className={styles.sidebarAvatar}>
+          {(username || '管')[0]}
+        </div>
+      </div>
+
+      <div className={styles.main}>
+        <div className={styles.topBar}>
+          <div className={styles.topBarTitle}>
+            {navItems.find((i) => isActive(i.path))?.label?.toUpperCase() || 'DASHBOARD'}
+          </div>
+          <div className={styles.topBarRight} onClick={() => setDropdownOpen(!dropdownOpen)}>
+            {username || '管理员'} ▾
+            {dropdownOpen && (
+              <div className={styles.dropdown}>
+                <div className={styles.dropdownItem} onClick={() => navigate('/')}>返回前台</div>
+                <div className={styles.dropdownItem} onClick={onLogout}>退出登录</div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className={styles.content}>
           <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+        </div>
+      </div>
+    </div>
   );
 };
 
