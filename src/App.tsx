@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, theme as antdTheme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import PublicLayout from './components/Layout/PublicLayout';
 import AdminLayout from './components/Layout/AdminLayout';
@@ -17,6 +17,21 @@ import TechStackManage from './pages/Admin/TechStackManage';
 import ShowcaseManage from './pages/Admin/ShowcaseManage';
 import { useAuth } from './hooks/useAuth';
 import './styles/global.css';
+import './styles/theme-echarts';
+
+const antdInkTheme = {
+  token: {
+    colorPrimary: '#0A0A0A',
+    colorBgContainer: '#FAFAF8',
+    colorBgLayout: '#FAFAF8',
+    colorBorder: '#E5E5E5',
+    colorText: '#0A0A0A',
+    colorTextSecondary: '#666666',
+    colorTextPlaceholder: '#999999',
+    borderRadius: 2,
+    fontFamily: "'Noto Sans SC', system-ui, sans-serif",
+  },
+};
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -28,10 +43,9 @@ const App: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
 
   return (
-    <ConfigProvider locale={zhCN}>
+    <ConfigProvider locale={zhCN} theme={{ ...antdInkTheme, algorithm: antdTheme.defaultAlgorithm }}>
       <BrowserRouter>
         <Routes>
-          {/* Public routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/tech" element={<TechShowcase />} />
@@ -40,11 +54,7 @@ const App: React.FC = () => {
             <Route path="/table" element={<TableDemo />} />
             <Route path="/threejs" element={<ThreeJS />} />
           </Route>
-
-          {/* Login */}
           <Route path="/login" element={<Login />} />
-
-          {/* Admin routes */}
           <Route path="/admin" element={
             <ProtectedRoute>
               <AdminLayout onLogout={logout} username={user?.nickname || user?.username} />

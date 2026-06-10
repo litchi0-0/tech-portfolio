@@ -1,0 +1,66 @@
+.layout {
+  min-height: 100vh;
+}
+
+.topBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  z-index: 50;
+  background: transparent;
+  transition: background-color var(--transition-normal);
+}
+
+.topBarScrolled {
+  background-color: var(--void);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--ink-black);
+  letter-spacing: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 24px;
+}
+
+.navLink {
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  position: relative;
+}
+
+.navLink:hover,
+.navLinkActive {
+  color: var(--ink-black);
+}
+
+.navLinkActive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--accent);
+}
+
+.content {
+  padding-top: 0;
+}
