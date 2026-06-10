@@ -1,0 +1,33 @@
+:root {
+  /* Ink tones */
+  --ink-black: #0A0A0A;
+  --ink-deep: #1A1A1A;
+  --ink-heavy: #333333;
+  --ink-light: #666666;
+  --ink-faint: #999999;
+
+  /* Paper tones */
+  --paper-warm: #E8E4DE;
+  --paper: #F5F3EF;
+  --void: #FAFAF8;
+
+  /* Accent */
+  --accent: #A85A4A;
+
+  /* Borders */
+  --border-light: #E5E5E5;
+  --border-dark: #222222;
+
+  /* Typography */
+  --font-serif: 'Noto Serif SC', Georgia, serif;
+  --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  /* Sizing */
+  --snap-height: 100vh;
+  --content-padding: 80px 60px;
+  --radius: 2px;
+
+  /* Transitions */
+  --transition-fast: 200ms ease;
+  --transition-normal: 300ms ease;
+}
