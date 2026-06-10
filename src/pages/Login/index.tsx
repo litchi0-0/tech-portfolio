@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography, message, Space } from 'antd';
+import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -27,10 +27,10 @@ const Login: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
       <Card style={{ width: 400, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}>
-        <Space direction="vertical" size="large" style={{ width: '100%', textAlign: 'center' }}>
+        <div style={{ width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Title level={3} style={{ margin: 0 }}>管理后台登录</Title>
           <Text type="secondary">Portfolio 管理系统</Text>
-        </Space>
+        </div>
         <Form onFinish={onFinish} style={{ marginTop: 32 }} size="large">
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
             <Input prefix={<UserOutlined />} placeholder="用户名" />

@@ -28,7 +28,8 @@ export function useAuth() {
     const response = await axios.post(`${API_BASE_URL}/auth/login`, {
       username,
       password,
-      appKey: APP_KEY,
+    }, {
+      headers: { 'X-App-Key': APP_KEY },
     });
     const data = response.data;
     if (data.code === 200) {
