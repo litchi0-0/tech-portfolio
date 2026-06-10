@@ -64,7 +64,7 @@ const ShowcaseManage: React.FC = () => {
   };
 
   const typeLabels: Record<string, string> = { bigscreen: '大屏展示', table: '表格展示', threejs: 'Three.js', demo: '演示' };
-  const typeColors: Record<string, string> = { bigscreen: 'purple', table: 'blue', threejs: 'green', demo: 'orange' };
+  const typeColors: Record<string, string> = { bigscreen: '#666666', table: '#666666', threejs: '#666666', demo: '#666666' };
 
   const columns = [
     { title: 'ID', dataIndex: 'id', width: 60 },
@@ -88,7 +88,7 @@ const ShowcaseManage: React.FC = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <h3>展示项管理</h3>
-        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>新增展示项</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate} style={{ background: '#0A0A0A', borderColor: '#0A0A0A' }}>新增展示项</Button>
       </div>
 
       <Table columns={columns} dataSource={showcases} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />

@@ -66,11 +66,11 @@ const ProjectManage: React.FC = () => {
   const columns = [
     { title: 'ID', dataIndex: 'id', width: 60 },
     { title: '标题', dataIndex: 'title', width: 150 },
-    { title: '分类', dataIndex: 'category', width: 100, render: (v: string) => v ? <Tag color="blue">{v}</Tag> : '-' },
+    { title: '分类', dataIndex: 'category', width: 100, render: (v: string) => v ? <Tag color="#666666">{v}</Tag> : '-' },
     { title: '技术栈', dataIndex: 'techStack', width: 200, render: (v: string) => v?.split(',').map((t: string) => <Tag key={t}>{t.trim()}</Tag>) },
     { title: '封面', dataIndex: 'coverImage', width: 100, render: (v: string) => v ? <Image src={v} width={60} height={40} style={{ objectFit: 'cover' }} /> : '-' },
     { title: '排序', dataIndex: 'sortOrder', width: 80 },
-    { title: '状态', dataIndex: 'status', width: 80, render: (v: number) => <Tag color={v === 1 ? 'green' : 'red'}>{v === 1 ? '显示' : '隐藏'}</Tag> },
+    { title: '状态', dataIndex: 'status', width: 80, render: (v: number) => <Tag color={v === 1 ? '#333333' : '#999999'}>{v === 1 ? '显示' : '隐藏'}</Tag> },
     {
       title: '操作', width: 150, render: (_: any, record: Project) => (
         <Space>
@@ -87,7 +87,7 @@ const ProjectManage: React.FC = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <h3>项目管理</h3>
-        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>新增项目</Button>
+        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate} style={{ background: '#0A0A0A', borderColor: '#0A0A0A' }}>新增项目</Button>
       </div>
 
       <Table columns={columns} dataSource={projects} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} />
