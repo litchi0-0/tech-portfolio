@@ -1,152 +1,188 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, Typography, Spin, Empty, Tag, Avatar, Divider } from 'antd';
-import { ProjectOutlined, CodeOutlined, AppstoreOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import ReactECharts from 'echarts-for-react';
+import SnapNav from '../../components/SnapNav/SnapNav';
+import InkProgress from '../../components/InkProgress/InkProgress';
+import InkTag from '../../components/InkTag/InkTag';
 import { portfolioApi } from '../../api/portfolio';
 import type { Project, TechStack, Showcase } from '../../types';
-
-const { Title, Paragraph, Text } = Typography;
+import styles from './Dashboard.module.css';
 
 const Dashboard: React.FC = () => {
-  const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [techStacks, setTechStacks] = useState<TechStack[]>([]);
   const [showcases, setShowcases] = useState<Showcase[]>([]);
+  const [currentProject, setCurrentProject] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     Promise.all([
       portfolioApi.getProjects().catch(() => ({ data: [] })),
       portfolioApi.getTechStacks().catch(() => ({ data: [] })),
       portfolioApi.getShowcases().catch(() => ({ data: [] })),
-    ]).then(([projectsRes, techStacksRes, showcasesRes]) => {
-      setProjects((projectsRes as any).data || []);
-      setTechStacks((techStacksRes as any).data || []);
-      setShowcases((showcasesRes as any).data || []);
-    }).finally(() => setLoading(false));
+    ]).then(([pRes, tRes, sRes]) => {
+      setProjects((pRes as any).data || []);
+      setTechStacks((tRes as any).data || []);
+      setShowcases((sRes as any).data || []);
+    });
   }, []);
 
-  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 100 }}><Spin size="large" /></div>;
+  const prevProject = () => setCurrentProject((i) => Math.max(0, i - 1));
+  const nextProject = () => setCurrentProject((i) => Math.min(projects.length - 1, i + 1));
 
-  return (
-    <div>
-      {/* Hero Section */}
-      <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '80px 24px', textAlign: 'center', color: '#fff' }}>
-        <Title level={1} style={{ color: '#fff', marginBottom: 16 }}>技术展示作品集</Title>
-        <Paragraph style={{ color: 'rgba(255,255,255,0.85)', fontSize: 18, maxWidth: 600, margin: '0 auto' }}>
-          全栈开发者的技术积累与项目展示
-        </Paragraph>
-      </div>
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') prevProject();
+    if (e.key === 'ArrowRight') nextProject();
+  }, []);
 
-      {/* Statistics */}
-      <div style={{ maxWidth: 1200, margin: '-40px auto 0', padding: '0 24px' }}>
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={8}>
-            <Card hoverable>
-              <Statistic title="项目数量" value={projects.length} prefix={<ProjectOutlined />} />
-            </Card>
-          </Col>
-          <Col xs={24} sm={8}>
-            <Card hoverable>
-              <Statistic title="技术栈" value={techStacks.length} prefix={<CodeOutlined />} />
-            </Card>
-          </Col>
-          <Col xs={24} sm={8}>
-            <Card hoverable>
-              <Statistic title="展示作品" value={showcases.length} prefix={<AppstoreOutlined />} />
-            </Card>
-          </Col>
-        </Row>
-      </div>
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
-      {/* Latest Projects */}
-      <div style={{ maxWidth: 1200, margin: '40px auto', padding: '0 24px' }}>
-        <Title level={3}>最新项目</Title>
-        {projects.length === 0 ? <Empty description="暂无项目" /> : (
-          <Row gutter={[24, 24]}>
-            {projects.slice(0, 6).map(p => (
-              <Col xs={24} sm={12} md={8} key={p.id}>
-                <Card hoverable cover={p.coverImage ? <img alt={p.title} src={p.coverImage} style={{ height: 200, objectFit: 'cover' }} /> : undefined}>
-                  <Card.Meta title={p.title} description={p.description?.substring(0, 80)} />
-                  <div style={{ marginTop: 12 }}>
-                    {p.techStack?.split(',').map(t => <Tag key={t} color="blue">{t.trim()}</Tag>)}
-                  </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        )}
-      </div>
+  const project = projects[currentProject];
 
-      {/* Tech Stack Overview */}
-      <div style={{ maxWidth: 1200, margin: '0 auto 40px', padding: '0 24px' }}>
-        <Title level={3}>技术栈概览</Title>
-        {techStacks.length === 0 ? <Empty description="暂无技术栈" /> : (
-          <Row gutter={[24, 24]}>
-            {techStacks.map(ts => (
-              <Col xs={24} sm={12} md={8} lg={6} key={ts.id}>
-                <Card size="small" hoverable>
-                  <Card.Meta
-                    avatar={ts.icon ? <Avatar src={ts.icon} /> : <Avatar icon={<CodeOutlined />} />}
-                    title={ts.name}
-                    description={ts.description?.substring(0, 50)}
-                  />
-                  <div style={{ marginTop: 8 }}>
-                    <Text type="secondary">熟练度: {ts.proficiency}%</Text>
-                    <div style={{ background: '#f0f0f0', borderRadius: 4, height: 6, marginTop: 4 }}>
-                      <div style={{ background: '#1890ff', borderRadius: 4, height: 6, width: `${ts.proficiency}%` }} />
-                    </div>
-                  </div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        )}
-      </div>
-
-      {/* GitHub Commit Heatmap */}
-      <div style={{ maxWidth: 1200, margin: '0 auto 40px', padding: '0 24px' }}>
-        <Title level={3}>GitHub 贡献</Title>
-        <Card>
-          <CommitHeatmap />
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// Simple commit heatmap component using ECharts
-const CommitHeatmap: React.FC = () => {
-  // Generate mock data for the heatmap (52 weeks x 7 days)
-  const generateHeatmapData = () => {
-    const data: [number, number, number][] = [];
-    const now = new Date();
-    const startDate = new Date(now.getFullYear(), 0, 1);
-    for (let i = 0; i < 365; i++) {
-      const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
-      if (date > now) break;
-      const week = Math.floor(i / 7);
-      const day = i % 7;
-      const commits = Math.floor(Math.random() * 8);
-      data.push([week, day, commits]);
-    }
-    return data;
-  };
-
-  const option = {
-    tooltip: { formatter: (params: any) => `${params.value[2]} 次提交` },
-    grid: { top: 10, bottom: 30, left: 40, right: 10 },
-    xAxis: { type: 'category', show: false },
-    yAxis: { type: 'category', data: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], axisLabel: { fontSize: 10 } },
-    visualMap: { min: 0, max: 8, show: false, inRange: { color: ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'] } },
+  // Radar chart option
+  const radarOption = {
+    radar: {
+      indicator: techStacks.slice(0, 12).map((ts) => ({ name: ts.name, max: 100 })),
+      splitLine: { lineStyle: { color: '#E5E5E5' } },
+      splitArea: { show: false },
+      axisLine: { lineStyle: { color: '#E5E5E5' } },
+      name: { textStyle: { color: '#666', fontSize: 11 } },
+    },
     series: [{
-      type: 'heatmap',
-      data: generateHeatmapData(),
-      itemStyle: { borderRadius: 2 },
+      type: 'radar',
+      data: [{
+        value: techStacks.slice(0, 12).map((ts) => ts.proficiency),
+        areaStyle: { color: 'rgba(10,10,10,0.06)' },
+        lineStyle: { color: '#0A0A0A', width: 1 },
+        itemStyle: { color: '#A85A4A' },
+      }],
     }],
   };
 
-  return <ReactECharts option={option} style={{ height: 180 }} />;
+  // Heatmap option
+  const heatmapOption = {
+    grid: { top: 10, bottom: 30, left: 40, right: 10 },
+    xAxis: { type: 'category', show: false },
+    yAxis: { type: 'category', data: ['日', '一', '二', '三', '四', '五', '六'], axisLabel: { fontSize: 10, color: '#999' } },
+    visualMap: {
+      min: 0, max: 8, show: false,
+      inRange: { color: ['#FAFAF8', '#E5E5E5', '#999999', '#666666', '#333333', '#0A0A0A'] },
+    },
+    series: [{
+      type: 'heatmap',
+      data: (() => {
+        const data: [number, number, number][] = [];
+        const today = new Date();
+        const start = new Date(today.getFullYear(), 0, 1);
+        for (let i = 0; i < 365; i++) {
+          const d = new Date(start);
+          d.setDate(d.getDate() + i);
+          if (d > today) break;
+          data.push([Math.floor(i / 7), i % 7, Math.floor(Math.random() * 8)]);
+        }
+        return data;
+      })(),
+      itemStyle: { borderRadius: 1, borderWidth: 1, borderColor: '#FAFAF8' },
+    }],
+  };
+
+  return (
+    <div className={styles.snapContainer} ref={containerRef}>
+      <SnapNav containerRef={containerRef} count={5} />
+
+      {/* Screen 1: Hero */}
+      <section className={styles.hero}>
+        <div className={styles.heroLabel}>TECH PORTFOLIO · {new Date().getFullYear()}</div>
+        <div className={styles.heroTitle}>墨</div>
+        <div className={styles.heroDivider} />
+        <div className={styles.heroSub}>技术 · 作品 · 履历</div>
+        <div className={styles.scrollHint}>
+          <div className={styles.scrollLine} />
+          <div className={styles.scrollText}>SCROLL</div>
+        </div>
+      </section>
+
+      {/* Screen 2: Stats */}
+      <section className={styles.stats}>
+        <div className={styles.statsLabel}>OVERVIEW</div>
+        <div className={styles.statsRow}>
+          <div className={styles.statItem}>
+            <div className={styles.statNumber}>{projects.length}</div>
+            <div className={styles.statDivider} />
+            <div className={styles.statLabel}>项目</div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statNumber}>{techStacks.length}</div>
+            <div className={styles.statDivider} />
+            <div className={styles.statLabel}>技术栈</div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statNumber}>{showcases.length}</div>
+            <div className={styles.statDivider} />
+            <div className={styles.statLabel}>展示</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Screen 3: Featured Project */}
+      <section className={styles.projects}>
+        <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div className={styles.projectsInner}>
+            <div className={styles.projectImage}>
+              {project?.coverImage && <img src={project.coverImage} alt={project.title} />}
+              <div className={styles.projectImageOverlay} />
+              <div className={styles.projectNumber}>{String(currentProject + 1).padStart(2, '0')}</div>
+              <div className={styles.projectInfo}>
+                <div className={styles.projectTitle}>{project?.title || '暂无项目'}</div>
+                <div className={styles.projectDesc}>{project?.description?.substring(0, 100) || ''}</div>
+                <div className={styles.projectTags}>
+                  {project?.techStack?.split(',').map((t) => (
+                    <InkTag key={t} variant="dark">{t.trim()}</InkTag>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.projectNav}>
+            <span className={styles.projectNavLink} onClick={prevProject}>← PREV</span>
+            <span className={styles.projectNavCount}>{currentProject + 1} / {projects.length}</span>
+            <span className={styles.projectNavLink} onClick={nextProject}>NEXT →</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Screen 4: Tech Stack */}
+      <section className={styles.techStack}>
+        <div className={styles.techLeft}>
+          <div className={styles.techLabel}>TECH STACK</div>
+          <div className={styles.techTitle}>技术栈</div>
+          {techStacks.slice(0, 6).map((ts) => (
+            <InkProgress key={ts.id} label={ts.name} value={ts.proficiency} />
+          ))}
+        </div>
+        <div className={styles.techRight}>
+          {techStacks.length > 0 && (
+            <ReactECharts option={radarOption} theme="ink" style={{ width: '100%', height: 300 }} />
+          )}
+        </div>
+      </section>
+
+      {/* Screen 5: Heatmap */}
+      <section className={styles.heatmap}>
+        <div className={styles.heatmapLabel}>COMMITS</div>
+        <ReactECharts option={heatmapOption} theme="ink" style={{ height: 160, width: '100%' }} />
+        <div className={styles.heatmapLegend}>
+          <span>少</span>
+          {['#FAFAF8', '#E5E5E5', '#999999', '#666666', '#333333', '#0A0A0A'].map((c) => (
+            <div key={c} className={styles.legendBlock} style={{ backgroundColor: c, border: c === '#FAFAF8' ? '1px solid #E5E5E5' : 'none' }} />
+          ))}
+          <span>多</span>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default Dashboard;

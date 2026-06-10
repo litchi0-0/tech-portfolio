@@ -1,0 +1,276 @@
+.snapContainer {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+}
+
+/* Screen 1: Hero */
+.hero {
+  composes: section from '../../components/SnapSection/SnapSection.module.css';
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  color: var(--void);
+}
+
+.heroLabel {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--ink-light);
+  margin-bottom: 20px;
+}
+
+.heroTitle {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  font-weight: 300;
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+}
+
+.heroDivider {
+  width: 40px;
+  height: 1px;
+  background-color: var(--accent);
+  margin: 16px auto;
+}
+
+.heroSub {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--ink-faint);
+  letter-spacing: 2px;
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 24px;
+  background: var(--ink-heavy);
+  margin: 0 auto 6px;
+}
+
+.scrollText {
+  font-size: 9px;
+  color: var(--ink-heavy);
+  letter-spacing: 2px;
+}
+
+/* Screen 2: Stats */
+.stats {
+  composes: section from '../../components/SnapSection/SnapSection.module.css';
+}
+
+.statsLabel {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--ink-faint);
+  margin-bottom: 32px;
+}
+
+.statsRow {
+  display: flex;
+  gap: 80px;
+  align-items: flex-end;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statNumber {
+  font-family: var(--font-serif);
+  font-size: 64px;
+  font-weight: 300;
+  color: var(--ink-black);
+  line-height: 1;
+}
+
+.statDivider {
+  width: 20px;
+  height: 1px;
+  background-color: var(--accent);
+  margin: 12px auto;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--ink-light);
+  letter-spacing: 1px;
+}
+
+/* Screen 3: Projects */
+.projects {
+  composes: section from '../../components/SnapSection/SnapSection.module.css';
+  background-color: var(--ink-black);
+  color: var(--void);
+  padding: 40px 60px;
+}
+
+.projectsInner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 16px;
+  flex: 1;
+}
+
+.projectImage {
+  flex: 2;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  border-radius: var(--radius);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 24px;
+  min-height: 300px;
+  overflow: hidden;
+}
+
+.projectImage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.projectImageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,10,10,0.8) 0%, transparent 50%);
+}
+
+.projectNumber {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-family: var(--font-serif);
+  font-size: 48px;
+  color: rgba(255,255,255,0.1);
+  font-weight: 300;
+  z-index: 1;
+}
+
+.projectInfo {
+  position: relative;
+  z-index: 1;
+}
+
+.projectTitle {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.projectDesc {
+  font-size: 11px;
+  color: var(--ink-light);
+  max-width: 300px;
+}
+
+.projectTags {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.projectMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.projectNav {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--ink-heavy);
+  letter-spacing: 1px;
+  margin-top: 12px;
+}
+
+.projectNavLink {
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.projectNavLink:hover {
+  color: var(--void);
+}
+
+.projectNavCount {
+  color: var(--ink-faint);
+}
+
+/* Screen 4: Tech Stack */
+.techStack {
+  composes: section from '../../components/SnapSection/SnapSection.module.css';
+  flex-direction: row;
+  padding: 80px 60px;
+}
+
+.techLeft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.techLabel {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--ink-faint);
+  margin-bottom: 20px;
+}
+
+.techTitle {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--ink-black);
+  margin-bottom: 16px;
+}
+
+.techRight {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Screen 5: Heatmap */
+.heatmap {
+  composes: section from '../../components/SnapSection/SnapSection.module.css';
+}
+
+.heatmapLabel {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--ink-faint);
+  margin-bottom: 20px;
+}
+
+.heatmapLegend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  color: var(--ink-faint);
+  margin-top: 12px;
+}
+
+.legendBlock {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+}
